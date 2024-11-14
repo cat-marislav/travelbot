@@ -24,9 +24,10 @@ import java.util.Optional;
 
 public class TravelBotApplication extends TelegramLongPollingSessionBot {
 
-    private final BotCredentials botCredentials = new ObjectMapper().readValue(new File("src/main/resources/bot-credentials.json"), BotCredentials.class);
+    private final BotCredentials botCredentials;
 
     public TravelBotApplication() throws IOException {
+        botCredentials = new ObjectMapper().readValue(new File("src/main/resources/bot-credentials.json"), BotCredentials.class);
     }
 
     public static void main(String[] args) throws IOException {
@@ -76,14 +77,13 @@ public class TravelBotApplication extends TelegramLongPollingSessionBot {
     @Override
     public void onUpdateReceived(Update update, Optional<Session> botSession) {
 
-        final String startMessage = "Привет, " + update.getMessage().getFrom().getFirstName() + ", выбери один из вариантов поиска: " + "\n" +
-                "1. Из аэропорта в аэропорт с выбором дат вылета и возвращения" + "\n" +
-                "2. Из аэропорта в аэропорт без выбора дат" + "\n" +
-                "3. Из аэропорта без выбора дат";
-
         final Message message = update.getMessage();
         try {
             if ("/start".equals(message.getText())) {
+                final String startMessage = "Привет, " + update.getMessage().getFrom().getFirstName() + ", выбери один из вариантов поиска: " + "\n" +
+                        "1. Из аэропорта в аэропорт с выбором дат вылета и возвращения" + "\n" +
+                        "2. Из аэропорта в аэропорт без выбора дат" + "\n" +
+                        "3. Из аэропорта без выбора дат";
                 botSession.ifPresent(session -> {
                     session.setAttribute("question_number", 0);
                     session.setAttribute("request_dto", null);

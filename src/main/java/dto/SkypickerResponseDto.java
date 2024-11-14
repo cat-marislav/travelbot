@@ -33,7 +33,7 @@ public class SkypickerResponseDto {
             return "Ошибка: Проверь введенные даты!";
         } else {
             StringBuilder tickets = new StringBuilder("Цена: " + data.get(0).price + " " + currency + ", маршрут: " + "\n");
-            for (int i = 0; i < data.get(0).getRoute().size(); i++) {
+            for (int i = 0; i < data.get(0).route.size(); i++) {
                 tickets.append(data.get(0).route.get(i).flyFrom)
                         .append(" -> ")
                         .append(data.get(0).route.get(i).flyTo)
