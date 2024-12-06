@@ -5,3 +5,4 @@
 gradlew
 gradlew.bat
 src/main/resources/bot-credentials.json
+src/main/resources/api-token.txt

@@ -1,4 +1,6 @@
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dto.AirlineData;
 import dto.BotCredentials;
 import dto.RequestDto;
 import org.apache.shiro.session.Session;
@@ -83,12 +85,14 @@ public class TravelBotApplication extends TelegramLongPollingSessionBot {
                 final String startMessage = "Привет, " + update.getMessage().getFrom().getFirstName() + ", выбери один из вариантов поиска: " + "\n" +
                         "1. Из аэропорта в аэропорт с выбором дат вылета и возвращения" + "\n" +
                         "2. Из аэропорта в аэропорт без выбора дат" + "\n" +
-                        "3. Из аэропорта без выбора дат";
+                        "3. Из аэропорта без выбора дат" + "\n" +
+                        "Если хочешь начать заново введи /start";
                 botSession.ifPresent(session -> {
+                    //session.setAttribute("language",update.getMessage().getFrom().getLanguageCode());
                     session.setAttribute("question_number", 0);
                     session.setAttribute("request_dto", null);
                 });
-                sendMsg(message, startMessage + "\n" + "Если хочешь начать заново введи /start");
+                sendMsg(message, startMessage);
             } else {
                 botSession.ifPresent(session -> {
                     session.setAttribute("request_dto", session.getAttribute("request_dto") == null ? new RequestDto() : session.getAttribute("request_dto"));
@@ -117,11 +121,11 @@ public class TravelBotApplication extends TelegramLongPollingSessionBot {
 
     @Override
     public String getBotUsername() {
-        return botCredentials.getName();
+        return botCredentials.name;
     }
 
     @Override
     public String getBotToken() {
-        return botCredentials.getToken();
+        return botCredentials.token;
     }
 }

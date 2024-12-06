@@ -1,9 +1,10 @@
 package service;
 
-import client.SkypickerClient;
+import client.AviasalesClient;
 import dto.RequestDto;
 import dto.OptionNumber;
 import dto.QuestionNumber;
+import lombok.Getter;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -11,19 +12,15 @@ import java.time.format.DateTimeParseException;
 
 public class MessageService {
 
+    @Getter
     private boolean correctAnswer = false;
     private boolean isFirstVar = true;
     private int optionNumber;
-    private final SkypickerClient skypickerClient = new SkypickerClient();
-
-    public boolean isCorrectAnswer() {
-        return correctAnswer;
-    }
+    private final AviasalesClient aviasalesClient = new AviasalesClient();
 
     public boolean isFirstVar() {
         return isFirstVar;
     }
-
 
     public String askQuestion(int questionNum, String userAnswer, RequestDto requestDto) {
         String toSend;
@@ -33,17 +30,9 @@ public class MessageService {
                 isFirstVar = true;
                 switch (OptionNumber.byCode(userAnswer)) {
                     case SELECTION_ALL_FOUR_PARAMETERS:
-                        optionNumber = 1;
-                        correctAnswer = true;
-                        toSend = "Введи IATA код аэропорта вылета в формате \"NNN\" ";
-                        break;
                     case SELECTION_AIRPORTS_ONLY:
-                        optionNumber = 2;
-                        correctAnswer = true;
-                        toSend = "Введи IATA код аэропорта вылета в формате \"NNN\" ";
-                        break;
                     case SELECTION_DEPARTURE_AIRPORT_ONLY:
-                        optionNumber = 3;
+                        optionNumber = Integer.parseInt(userAnswer);
                         correctAnswer = true;
                         toSend = "Введи IATA код аэропорта вылета в формате \"NNN\" ";
                         break;
@@ -61,7 +50,7 @@ public class MessageService {
                         correctAnswer = true;
                     } else {
                         requestDto.setDepartureAirport(userAnswer.toUpperCase());
-                        toSend = skypickerClient.getResponse(requestDto); //ticket request
+                        toSend = aviasalesClient.getResponse(requestDto);
                         isFirstVar = false;
                         correctAnswer = true;
                     }
@@ -75,11 +64,11 @@ public class MessageService {
                 if (isValidAirport(userAnswer.toUpperCase())) {
                     if (optionNumber == 1) {
                         requestDto.setArrivalAirport(userAnswer.toUpperCase());
-                        toSend = "Введите дату вылета в формате dd/mm/yyyy";
+                        toSend = "Введите дату вылета в формате yyyy-MM-dd";
                         correctAnswer = true;
                     } else {
                         requestDto.setArrivalAirport(userAnswer.toUpperCase());
-                        toSend = skypickerClient.getResponse(requestDto); //ticket request
+                        toSend = aviasalesClient.getResponse(requestDto);
                         isFirstVar = false;
                         correctAnswer = true;
                     }
@@ -92,10 +81,10 @@ public class MessageService {
                 correctAnswer = false;
                 if (isValidDate(userAnswer)) {
                     requestDto.setDepartureTime(userAnswer);
-                    toSend = "Введите дату возвращения в формате dd/mm/yyyy";
+                    toSend = "Введите дату возвращения в формате yyyy-MM-dd";
                     correctAnswer = true;
                 } else {
-                    toSend = "Пример ввода: 01/09/2024";
+                    toSend = "Пример ввода: 2024-12-14";
                 }
                 return toSend;
 
@@ -103,10 +92,10 @@ public class MessageService {
                 correctAnswer = false;
                 if (isValidDate(userAnswer)) {
                     requestDto.setReturnTime(userAnswer);
-                    toSend = skypickerClient.getResponse(requestDto); //ticket request
+                    toSend = aviasalesClient.getResponse(requestDto);
                     correctAnswer = true;
                 } else {
-                    toSend = "Пример ввода: 10/09/2024";
+                    toSend = "Пример ввода: 2024-12-21";
                 }
                 return toSend;
             case RESTART_DIALOGUE:
@@ -124,7 +113,7 @@ public class MessageService {
 
     private boolean isValidDate(String userAnswer) {
         try {
-            LocalDate.parse(userAnswer, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+            LocalDate.parse(userAnswer, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
             return true;
         } catch (DateTimeParseException e) {
             return false;
